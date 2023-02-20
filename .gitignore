@@ -33,4 +33,4 @@ build/
 .vscode/
 
 ### exclude application-xxx.yml ###
-**/src/main/resources/application-*.yml
+**/src/main/resources/application-*.yaml

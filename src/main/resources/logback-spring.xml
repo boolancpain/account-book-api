@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<!-- 로그 패턴에 색상 적용 %clr(pattern){color} -->
+	<conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+	
+	<!-- active profile default logger -->
+	<springProfile name="!dev">
+		<appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${LOG_PATH}/log-%d{yyyyMMdd}-%i.log</fileNamePattern>
+				<maxHistory>30</maxHistory>
+				<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+					<maxFileSize>100MB</maxFileSize>
+				</timeBasedFileNamingAndTriggeringPolicy>
+			</rollingPolicy>
+			<encoder>
+				<charset>UTF-8</charset>
+				<pattern>%d{yyyy:MM:dd HH:mm:ss.SSS} %-5level --- [%thread] %logger{36} : %msg %n</pattern>
+			</encoder>
+		</appender>
+		<root level="info">
+			<appender-ref ref="file"/>
+		</root>
+	</springProfile>
+	
+	<!-- active profile 'dev' for logger -->
+	<springProfile name="dev">
+		<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+			<encoder>
+				<charset>UTF-8</charset>
+				<pattern>%d{yyyy-MM-dd HH:mm:ss}:%-3relative %clr(%-5level) %clr(---){faint} %clr([%-15.15thread]){faint} %clr(%-40.40logger{36}){cyan} %clr(:){faint} %msg%n</pattern>
+			</encoder>
+		</appender>
+		<root level="error">
+			<appender-ref ref="console"/>
+		</root>
+	</springProfile>
+</configuration>
