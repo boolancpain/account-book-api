@@ -39,14 +39,18 @@ public class Member extends BaseTimeEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(length = 255, nullable = false, unique = true)
-	private String email;
-	
 	@Column(length = 255, nullable = false)
 	private String name;
 	
+	@Column(length = 255, nullable = false)
+	private String providerId;
+	
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
+	@Column(length = 10, nullable = false)
+	private MemberProvider provider;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(length = 10, nullable = false)
 	private MemberRole role;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
