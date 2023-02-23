@@ -51,7 +51,7 @@ public class JwtProvider {
 	 * @param Member
 	 * @return accessToken
 	 */
-	public String createAccessToken(Member member) {
+	public String generateAccessToken(Member member) {
 		return Jwts.builder()
 				.setSubject(String.valueOf(member.getId()))
 				.signWith(key, SignatureAlgorithm.HS512)
@@ -65,7 +65,7 @@ public class JwtProvider {
 	 * 
 	 * @return refreshToken
 	 */
-	public String createRefreshToken() {
+	public String generateRefreshToken() {
 		return Jwts.builder()
 				.setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getRefreshTokenExpirationTime()))
 				.signWith(key, SignatureAlgorithm.HS512)
@@ -92,7 +92,7 @@ public class JwtProvider {
 	}
 	
 	/**
-	 * token의 유효성 검증 결과 반환
+	 * token의 유효성 검증 결과 리턴
 	 * 
 	 * @param token
 	 * @return 유효성 검증 결과
@@ -126,7 +126,7 @@ public class JwtProvider {
 	}
 	
 	/**
-	 * refresh token이 재발급 가능한지(설정된 만료일 이내인지) 반환
+	 * refresh token의 재발급 가능 여부 리턴(설정된 만료일 이내인지) 
 	 * 
 	 * @param refreshToken
 	 * @return refresh token 재발급 가능 여부

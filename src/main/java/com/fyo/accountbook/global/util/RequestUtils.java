@@ -13,7 +13,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 public class RequestUtils {
 	/**
-	 * RequestContextHolder로부터 HttpServletRequest를 반환
+	 * RequestContextHolder로부터 HttpServletRequest를 리턴
 	 * 
 	 * @return HttpServletRequest
 	 */
@@ -22,7 +22,7 @@ public class RequestUtils {
 	}
 	
 	/**
-	 * RequestContextHolder로부터 HttpServletResponse를 반환
+	 * RequestContextHolder로부터 HttpServletResponse를 리턴
 	 * 
 	 * @return HttpServletResponse
 	 */

@@ -41,4 +41,12 @@ public class MemberController {
 	public ResponseEntity<MemberInfo> getMyInfo() {
 		return ResponseEntity.ok(memberService.getMyInfo());
 	}
+	
+	/**
+	 * access token 재발행
+	 */
+	@GetMapping("/reissue")
+	public ResponseEntity<TokenResponse> reissueAccessToken() {
+		return ResponseEntity.ok(memberService.reissueAccessToken());
+	}
 }

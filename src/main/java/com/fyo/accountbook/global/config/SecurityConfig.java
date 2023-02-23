@@ -52,7 +52,7 @@ public class SecurityConfig {
 						.deleteCookies("refresh_token")
 					.and()
 						.authorizeRequests()
-							.antMatchers("/login/**", "/test").permitAll()
+							.antMatchers("/login/**", "/reissue", "/test").permitAll()
 							.antMatchers("/members/**").hasRole(MemberRole.ADMIN.name())
 							.anyRequest().authenticated()
 				.and()

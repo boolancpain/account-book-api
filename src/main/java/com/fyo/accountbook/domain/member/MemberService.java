@@ -3,6 +3,7 @@ package com.fyo.accountbook.domain.member;
 import java.util.Base64;
 
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.Cookie;
 import javax.transaction.Transactional;
 
 import org.springframework.http.MediaType;
@@ -83,12 +84,14 @@ public class MemberService {
 					memberRepository.save(member);
 					
 					// access token 생성
-					String accessToken = jwtProvider.createAccessToken(member);
+					String accessToken = jwtProvider.generateAccessToken(member);
 					// refresh token 생성
-					String refreshToken = jwtProvider.createRefreshToken();
+					String refreshToken = jwtProvider.generateRefreshToken();
 					
 					int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime()).intValue() / 60;
 					CookieUtils.addCookie("refresh_token", refreshToken, maxAge);
+					
+					// TODO redis 같은 캐시서버에 refresh token 저장
 					
 					return TokenResponse.builder()
 							.accessToken(accessToken)
@@ -115,6 +118,49 @@ public class MemberService {
 		
 		return MemberInfo.builder()
 				.name(member.getName())
+				.build();
+	}
+	
+	/**
+	 * access token 재발행
+	 * 
+	 * @return 재발행 된 access token
+	 */
+	public TokenResponse reissueAccessToken() {
+		// 1. SecurityContextHolder로부터 Authentication 객체를 가져옴
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		// 2. Authentication 객체에서 name attribute(member.id)로 회원 조회
+		Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
+				.orElseThrow(() -> new RuntimeException("not found member"));
+		
+		// 3. cookie에서 refresh token 꺼냄
+		String refreshToken = CookieUtils.getCookie("refresh_token")
+				.map(Cookie::getValue)
+				.orElseThrow(() -> new RuntimeException("not exists refresh token"));
+		
+		// 4. refresh token 유효성 검증
+		if(!jwtProvider.isValidToken(refreshToken))
+			throw new RuntimeException("Invalid refresh token");
+		
+		// 5. refresh token 재발행 가능한지 체크(만료일로부터 n일전)
+		if(jwtProvider.isReissuableRefreshToken(refreshToken)) {
+			// 5-1. refresh token 재발행
+			String newRefreshToken = jwtProvider.generateRefreshToken();
+			
+			// 5-2. cookie에 기존 refresh token 삭제
+			CookieUtils.deleteCookie("refresh_token");
+			
+			// 5-3. 새로운 refresh token을 cookie에 추가
+			int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime()).intValue() / 60;
+			CookieUtils.addCookie("refresh_token", newRefreshToken, maxAge);
+			
+			// 5-4. TODO redis에 refresh token 교체
+		}
+		
+		// 6. access token 재발행 및 리턴
+		return TokenResponse.builder()
+				.accessToken(jwtProvider.generateAccessToken(member))
 				.build();
 	}
 }
