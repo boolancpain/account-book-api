@@ -88,10 +88,11 @@ public class MemberService {
 					// refresh token 생성
 					String refreshToken = jwtProvider.generateRefreshToken();
 					
-					int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime()).intValue() / 60;
+					// millisecond to second
+					int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime() / 1000).intValue();
 					CookieUtils.addCookie("refresh_token", refreshToken, maxAge);
 					
-					// TODO redis 같은 캐시서버에 refresh token 저장
+					// TODO redis에 refresh token 저장
 					
 					return TokenResponse.builder()
 							.accessToken(accessToken)
@@ -152,7 +153,7 @@ public class MemberService {
 			CookieUtils.deleteCookie("refresh_token");
 			
 			// 5-3. 새로운 refresh token을 cookie에 추가
-			int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime()).intValue() / 60;
+			int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime() / 1000).intValue();
 			CookieUtils.addCookie("refresh_token", newRefreshToken, maxAge);
 			
 			// 5-4. TODO redis에 refresh token 교체
