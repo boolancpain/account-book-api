@@ -1,6 +1,7 @@
 package com.fyo.accountbook.domain.member;
 
 import java.util.Base64;
+import java.util.Optional;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.Cookie;
@@ -25,6 +26,8 @@ import com.fyo.accountbook.global.jwt.JwtProvider;
 import com.fyo.accountbook.global.property.JwtProperties;
 import com.fyo.accountbook.global.property.OAuth2Properties;
 import com.fyo.accountbook.global.util.CookieUtils;
+import com.fyo.accountbook.global.util.HttpHeaderUtils;
+import com.fyo.accountbook.global.util.ServletUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -128,38 +131,46 @@ public class MemberService {
 	 * @return 재발행 된 access token
 	 */
 	public TokenResponse reissueAccessToken() {
-		// 1. SecurityContextHolder로부터 Authentication 객체를 가져옴
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		
-		// 2. Authentication 객체에서 name attribute(member.id)로 회원 조회
-		Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-				.orElseThrow(() -> new RuntimeException("not found member"));
-		
-		// 3. cookie에서 refresh token 꺼냄
+		// 1. cookie에서 refresh token을 가져온다
 		String refreshToken = CookieUtils.getCookie("refresh_token")
 				.map(Cookie::getValue)
 				.orElseThrow(() -> new RuntimeException("not exists refresh token"));
 		
-		// 4. refresh token 유효성 검증
-		if(!jwtProvider.isValidToken(refreshToken))
+		// 2. cookie에 담겨있던 refresh token의 유효성을 검증한다
+		if(!jwtProvider.isValidToken(refreshToken)) {
 			throw new RuntimeException("Invalid refresh token");
+		}
 		
-		// 5. refresh token 재발행 가능한지 체크(만료일로부터 n일전)
+		// 3. http header에서 access token을 가져온다
+		String accessToken = Optional.ofNullable(HttpHeaderUtils.getTokenFromHeader(ServletUtils.getRequest()))
+				.orElseThrow(() -> new RuntimeException("not found access token"));
+		
+		// 4. access token에서 회원 정보를 추출해서 회원 정보를 검색한다
+		Member member = Optional.ofNullable(jwtProvider.getClaims(accessToken))
+				.map(claims -> claims.getSubject())
+				.map(subject -> memberRepository.findById(Long.valueOf(subject))
+						.orElseThrow(() -> new RuntimeException("not found member(claims's subject id)")))
+				.orElseThrow(() -> new RuntimeException("failed get claims from access token"));
+		
+		// 5. TODO 저장소에서 회원 id로 refresh token 조회
+		// 6. TODO 저장소 refresh token과 쿠키의 refresh token 일치하는지 검증
+		
+		// 7. refresh token 재발행 가능한지 체크(만료일로부터 n일전)
 		if(jwtProvider.isReissuableRefreshToken(refreshToken)) {
-			// 5-1. refresh token 재발행
+			// 7-1. refresh token 재발행
 			String newRefreshToken = jwtProvider.generateRefreshToken();
 			
-			// 5-2. cookie에 기존 refresh token 삭제
+			// 7-2. cookie에 기존 refresh token 삭제
 			CookieUtils.deleteCookie("refresh_token");
 			
-			// 5-3. 새로운 refresh token을 cookie에 추가
+			// 7-3. 새로운 refresh token을 cookie에 추가
 			int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime() / 1000).intValue();
 			CookieUtils.addCookie("refresh_token", newRefreshToken, maxAge);
 			
-			// 5-4. TODO redis에 refresh token 교체
+			// 7-4. TODO 저장소에 refresh token 교체
 		}
 		
-		// 6. access token 재발행 및 리턴
+		// 8. access token 재발행 및 리턴
 		return TokenResponse.builder()
 				.accessToken(jwtProvider.generateAccessToken(member))
 				.build();
