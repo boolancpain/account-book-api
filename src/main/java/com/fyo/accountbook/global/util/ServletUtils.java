@@ -7,11 +7,11 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * Request util
+ * Servlet util class
  * 
  * @author boolancpain
  */
-public class RequestUtils {
+public class ServletUtils {
 	/**
 	 * RequestContextHolder로부터 HttpServletRequest를 리턴
 	 * 

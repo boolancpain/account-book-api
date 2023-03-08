@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fyo.accountbook.global.jwt.JwtProvider;
+import com.fyo.accountbook.global.util.HttpHeaderUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-	private static final String AUTHORIZATION_HEADER = "Authorization";
-	private static final String BEARER_PREFIX = "Bearer ";
-	
 	private final JwtProvider jwtProvider;
 	
 	/**
@@ -38,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			, HttpServletResponse response
 			, FilterChain filterChain) throws ServletException, IOException {
 		String uri = request.getRequestURI();
-		String token = this.getToken(request);
+		String token = HttpHeaderUtils.getTokenFromHeader(request);
 		
 		if(StringUtils.hasText(token) && jwtProvider.isValidToken(token)) {
 			// 토큰에서 인증 객체를 추출
@@ -51,16 +49,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 		
 		filterChain.doFilter(request, response);
-	}
-	
-	/**
-	 * 헤더에서 access token을 추출한다
-	 */
-	private String getToken(HttpServletRequest request) {
-		String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-		if(StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-			return bearerToken.substring(7);
-		}
-		return null;
 	}
 }
