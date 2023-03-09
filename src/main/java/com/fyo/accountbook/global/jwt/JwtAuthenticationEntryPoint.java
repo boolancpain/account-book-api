@@ -1,15 +1,23 @@
 package com.fyo.accountbook.global.jwt;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fyo.accountbook.global.common.BaseResponse;
+import com.fyo.accountbook.global.common.CustomMessageSource;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -19,8 +27,11 @@ import lombok.extern.slf4j.Slf4j;
  * @author boolancpain
  */
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+	private final CustomMessageSource customMessageSource;
+	
 	/**
 	 * 인증 정보 없이 접근하는 경우 SC_UNAUTHORIZED(401) 응답
 	 */
@@ -29,6 +40,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 			, HttpServletResponse response
 			, AuthenticationException authException) throws IOException, ServletException {
 		log.debug("unauthorized error. message := {}", authException.getMessage());
-		response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+		
+		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		response.setStatus(HttpStatus.UNAUTHORIZED.value());
+		response.getWriter().write(new ObjectMapper()
+				.writeValueAsString(BaseResponse.builder().message(customMessageSource.getMessage("unauthorized")).build()));
 	}
 }

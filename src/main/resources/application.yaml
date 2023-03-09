@@ -23,5 +23,6 @@ logging:
   file:
     path: logs
   level:
+    root: error
     com:
       fyo: info
