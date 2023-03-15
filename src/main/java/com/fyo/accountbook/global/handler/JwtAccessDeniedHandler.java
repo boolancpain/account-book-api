@@ -15,9 +15,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fyo.accountbook.global.common.BaseResponse;
-import com.fyo.accountbook.global.common.CustomMessageSource;
+import com.fyo.accountbook.global.util.MessageUtils;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -27,11 +26,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author boolancpain
  */
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
-	private final CustomMessageSource customMessageSource;
-	
 	/**
 	 * 자원의 접근 권한이 없는 경우 SC_FORBIDDEN(403) 응답
 	 */
@@ -45,6 +41,6 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setStatus(HttpStatus.FORBIDDEN.value());
 		response.getWriter().write(new ObjectMapper()
-				.writeValueAsString(BaseResponse.builder().message(customMessageSource.getMessage("forbidden")).build()));
+				.writeValueAsString(BaseResponse.builder().message(MessageUtils.getMessage("forbidden")).build()));
 	}
 }
