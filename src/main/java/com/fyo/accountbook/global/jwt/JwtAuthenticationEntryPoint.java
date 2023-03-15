@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fyo.accountbook.global.common.BaseResponse;
 import com.fyo.accountbook.global.util.MessageUtils;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,8 +27,11 @@ import lombok.extern.slf4j.Slf4j;
  * @author boolancpain
  */
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+	private final ObjectMapper objectMapper;
+	
 	/**
 	 * 인증 정보 없이 접근하는 경우 SC_UNAUTHORIZED(401) 응답
 	 */
@@ -40,7 +44,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
-		response.getWriter().write(new ObjectMapper()
+		response.getWriter().write(objectMapper
 				.writeValueAsString(BaseResponse.builder().message(MessageUtils.getMessage("unauthorized")).build()));
 	}
 }

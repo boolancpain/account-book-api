@@ -15,7 +15,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fyo.accountbook.domain.member.MemberRequestDto.OAuthRequest;
 import com.fyo.accountbook.domain.member.MemberResponseDto.KakaoOAuth2Token;
@@ -40,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberService {
 	private final MemberRepository memberRepository;
+	private final ObjectMapper objectMapper;
 	private final JwtProvider jwtProvider;
 	private final JwtProperties jwtProperties;
 	private final OAuth2Properties oAuth2Properties;
@@ -70,8 +70,6 @@ public class MemberService {
 				String idToken = kakaoOAuth2Token.getId_token();
 				String payload = new String(Base64.getDecoder().decode(idToken.split("[.]")[1]));
 				
-				// 존재하지 않는 속성 무시
-				ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				try {
 					KakaoOAuth2UserInfo userInfo = objectMapper.readValue(payload, KakaoOAuth2UserInfo.class);
 					

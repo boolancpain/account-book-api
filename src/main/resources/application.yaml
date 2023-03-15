@@ -6,7 +6,6 @@ spring:
     include:
       - jwt
       - oauth
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/db
@@ -18,6 +17,10 @@ spring:
     properties:
       hibernate:
         "[show_sql]": true
+        
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
 
 logging:
   file:
