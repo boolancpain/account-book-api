@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
  * Jpa 설정 클래스
- * {@link com.fyo.beginning.global.entity.BaseTimeEntity} audit 사용을 위한 설정
+ * {@link com.fyo.account-book-api.global.entity.BaseTimeEntity} audit 사용을 위한 설정
  * 
  * @author boolancpain
  */
