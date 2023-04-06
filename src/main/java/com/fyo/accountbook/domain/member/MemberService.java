@@ -3,7 +3,6 @@ package com.fyo.accountbook.domain.member;
 import java.util.Base64;
 import java.util.Optional;
 
-import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.Cookie;
 import javax.transaction.Transactional;
 
@@ -21,6 +20,8 @@ import com.fyo.accountbook.domain.member.MemberResponseDto.KakaoOAuth2Token;
 import com.fyo.accountbook.domain.member.MemberResponseDto.KakaoOAuth2UserInfo;
 import com.fyo.accountbook.domain.member.MemberResponseDto.MemberInfo;
 import com.fyo.accountbook.domain.member.MemberResponseDto.TokenResponse;
+import com.fyo.accountbook.global.common.AuthError;
+import com.fyo.accountbook.global.common.CustomException;
 import com.fyo.accountbook.global.jwt.JwtProvider;
 import com.fyo.accountbook.global.property.JwtProperties;
 import com.fyo.accountbook.global.property.OAuth2Properties;
@@ -89,6 +90,7 @@ public class MemberService {
 					// refresh token 생성
 					String refreshToken = jwtProvider.generateRefreshToken();
 					
+					// cookid에 refresh token add
 					// millisecond to second
 					int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime() / 1000).intValue();
 					CookieUtils.addCookie("refresh_token", refreshToken, maxAge);
@@ -99,10 +101,10 @@ public class MemberService {
 							.accessToken(accessToken)
 							.build();
 				} catch (JsonProcessingException e) {
-					throw new RuntimeException("회원 정보 파싱 에러");
+					throw new CustomException(MemberError.FAILED_LOGIN);
 				}
 			default:
-				throw new RuntimeException("Unsupport Provider!");
+				throw new CustomException(MemberError.INVALID_PROVIDER);
 		}
 	}
 	
@@ -116,7 +118,7 @@ public class MemberService {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		
 		Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-				.orElseThrow(() -> new EntityNotFoundException("zzz"));
+				.orElseThrow(() -> new CustomException(AuthError.UNAUTHORIZED));
 		
 		return MemberInfo.builder()
 				.name(member.getName())
@@ -132,23 +134,23 @@ public class MemberService {
 		// 1. cookie에서 refresh token을 가져온다
 		String refreshToken = CookieUtils.getCookie("refresh_token")
 				.map(Cookie::getValue)
-				.orElseThrow(() -> new RuntimeException("not exists refresh token"));
+				.orElseThrow(() -> new CustomException(AuthError.NOT_FOUND_REFRESH_TOKEN));
 		
 		// 2. cookie에 담겨있던 refresh token의 유효성을 검증한다
 		if(!jwtProvider.isValidToken(refreshToken)) {
-			throw new RuntimeException("Invalid refresh token");
+			throw new CustomException(AuthError.INVALID_REFRESH_TOKEN);
 		}
 		
 		// 3. http header에서 access token을 가져온다
 		String accessToken = Optional.ofNullable(HttpHeaderUtils.getTokenFromHeader(ServletUtils.getRequest()))
-				.orElseThrow(() -> new RuntimeException("not found access token"));
+				.orElseThrow(() -> new CustomException(AuthError.NOT_FOUND_ACCESS_TOKEN));
 		
 		// 4. access token에서 회원 정보를 추출해서 회원 정보를 검색한다
 		Member member = Optional.ofNullable(jwtProvider.getClaims(accessToken))
 				.map(claims -> claims.getSubject())
 				.map(subject -> memberRepository.findById(Long.valueOf(subject))
-						.orElseThrow(() -> new RuntimeException("not found member(claims's subject id)")))
-				.orElseThrow(() -> new RuntimeException("failed get claims from access token"));
+						.orElseThrow(() -> new CustomException(AuthError.INVALID_ACCESS_TOKEN)))
+				.orElseThrow(() -> new CustomException(AuthError.INVALID_ACCESS_TOKEN));
 		
 		// 5. TODO 저장소에서 회원 id로 refresh token 조회
 		// 6. TODO 저장소 refresh token과 쿠키의 refresh token 일치하는지 검증

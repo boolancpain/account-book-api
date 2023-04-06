@@ -14,8 +14,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fyo.accountbook.global.common.BaseResponse;
-import com.fyo.accountbook.global.util.MessageUtils;
+import com.fyo.accountbook.global.common.AuthError;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +43,6 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setStatus(HttpStatus.FORBIDDEN.value());
-		response.getWriter().write(objectMapper
-				.writeValueAsString(BaseResponse.builder().message(MessageUtils.getMessage("forbidden")).build()));
+		response.getWriter().write(objectMapper.writeValueAsString(AuthError.FORBIDDEN.toBaseResponse()));
 	}
 }

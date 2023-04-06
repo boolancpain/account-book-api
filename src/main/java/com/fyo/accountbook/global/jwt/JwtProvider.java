@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import com.fyo.accountbook.domain.member.Member;
+import com.fyo.accountbook.global.common.AuthError;
+import com.fyo.accountbook.global.common.CustomException;
 import com.fyo.accountbook.global.property.JwtProperties;
 
 import io.jsonwebtoken.Claims;
@@ -87,7 +89,7 @@ public class JwtProvider {
 			User principal = new User(claims.getSubject(), "", authorities);
 			return new UsernamePasswordAuthenticationToken(principal, "", authorities);
 		} else {
-			throw new IllegalArgumentException("failed get Authentication");
+			throw new CustomException(AuthError.INVALID_ACCESS_TOKEN);
 		}
 	}
 	
