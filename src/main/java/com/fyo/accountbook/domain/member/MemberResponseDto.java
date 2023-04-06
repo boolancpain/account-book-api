@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * 회원 서비스 응답 객체
@@ -16,7 +15,6 @@ public class MemberResponseDto {
 	 * kakao oAuth2 토큰 요청 response
 	 */
 	@Getter
-	@Setter
 	@Builder
 	@AllArgsConstructor
 	@NoArgsConstructor
@@ -33,7 +31,6 @@ public class MemberResponseDto {
 	 * kakao oAuth2 회원 정보 response
 	 */
 	@Getter
-	@Setter
 	@Builder
 	@AllArgsConstructor
 	@NoArgsConstructor

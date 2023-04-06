@@ -7,20 +7,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * OAuth2 Property class
+ * Kakao OAuth2 Property class
  * 
  * @author boolancpain
  */
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "app.oauth2")
-public class OAuth2Properties {
-	private Kakao kakao;
+@ConfigurationProperties(prefix = "app.oauth2.kakao")
+public class KakaoProperties {
+	private String url;
 	
-	@Getter
-	@Setter
-	public static class Kakao {
-		private String clientId;
-	}
+	private String clientId;
+	
+	private String grantType;
 }
