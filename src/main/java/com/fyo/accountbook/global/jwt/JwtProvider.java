@@ -139,6 +139,6 @@ public class JwtProvider {
 				.toInstant()
 				.atZone(ZoneId.systemDefault())
 				.toLocalDateTime();
-		return expiration.minusDays(jwtProperties.getReissuableDayBeforeExpirationTime()).isBefore(LocalDateTime.now());
+		return expiration.minusDays(jwtProperties.getReissuableDayBeforeExpirationDay()).isBefore(LocalDateTime.now());
 	}
 }

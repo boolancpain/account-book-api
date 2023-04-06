@@ -22,5 +22,5 @@ public class JwtProperties {
 	
 	private long refreshTokenExpirationTime;
 	
-	private long reissuableDayBeforeExpirationTime;
+	private long reissuableDayBeforeExpirationDay;
 }
