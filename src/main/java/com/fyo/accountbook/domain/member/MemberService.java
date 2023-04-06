@@ -24,7 +24,7 @@ import com.fyo.accountbook.global.common.AuthError;
 import com.fyo.accountbook.global.common.CustomException;
 import com.fyo.accountbook.global.jwt.JwtProvider;
 import com.fyo.accountbook.global.property.JwtProperties;
-import com.fyo.accountbook.global.property.OAuth2Properties;
+import com.fyo.accountbook.global.property.KakaoProperties;
 import com.fyo.accountbook.global.util.CookieUtils;
 import com.fyo.accountbook.global.util.HttpHeaderUtils;
 import com.fyo.accountbook.global.util.ServletUtils;
@@ -41,9 +41,10 @@ import lombok.RequiredArgsConstructor;
 public class MemberService {
 	private final MemberRepository memberRepository;
 	private final ObjectMapper objectMapper;
+	private final WebClient webClient;
 	private final JwtProvider jwtProvider;
 	private final JwtProperties jwtProperties;
-	private final OAuth2Properties oAuth2Properties;
+	private final KakaoProperties kakaoProperties;
 	
 	/**
 	 * OAuth2 인증 요청 및 로그인 처리(토큰 발행)
@@ -55,18 +56,16 @@ public class MemberService {
 		switch(thisProvider) {
 			case KAKAO:
 				// kakao 토큰 받기 요청
-				KakaoOAuth2Token kakaoOAuth2Token = WebClient.create("https://kauth.kakao.com/oauth/token")
-					.post()
-					.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-					.accept(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromFormData("grant_type", "authorization_code")
-							.with("client_id", oAuth2Properties.getKakao().getClientId())
-							.with("redirect_uri", oAuthRequest.getAuthorizedRedirectUri())
-							.with("code", oAuthRequest.getCode())
-					)
-					.retrieve()
-					.bodyToMono(KakaoOAuth2Token.class)
-					.block();
+				KakaoOAuth2Token kakaoOAuth2Token = webClient.mutate()
+						.baseUrl(kakaoProperties.getUrl()).build().post()
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+						.body(BodyInserters.fromFormData("grant_type", kakaoProperties.getGrantType())
+								.with("client_id", kakaoProperties.getClientId())
+								.with("redirect_uri", oAuthRequest.getAuthorizedRedirectUri())
+								.with("code", oAuthRequest.getCode()))
+						.retrieve()
+						.bodyToMono(KakaoOAuth2Token.class)
+						.block();
 				
 				String idToken = kakaoOAuth2Token.getId_token();
 				String payload = new String(Base64.getDecoder().decode(idToken.split("[.]")[1]));

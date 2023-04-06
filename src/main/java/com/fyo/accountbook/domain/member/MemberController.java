@@ -1,5 +1,7 @@
 package com.fyo.accountbook.domain.member;
 
+import javax.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +32,7 @@ public class MemberController {
 	 */
 	@PostMapping("/login/oauth2/{provider}")
 	public ResponseEntity<TokenResponse> oAuth2Login(@PathVariable String provider
-			, @RequestBody OAuthRequest oAuthRequest) {
+			, @Valid @RequestBody OAuthRequest oAuthRequest) {
 		return ResponseEntity.ok(memberService.oAuth2Login(provider, oAuthRequest));
 	}
 	
