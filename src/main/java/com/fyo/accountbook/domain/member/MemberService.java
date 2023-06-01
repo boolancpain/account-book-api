@@ -6,12 +6,12 @@ import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.transaction.Transactional;
 
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,8 +40,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberService {
 	private final MemberRepository memberRepository;
+	
 	private final ObjectMapper objectMapper;
-	private final WebClient webClient;
+	private final RestTemplate restTemplate;
+	
 	private final JwtProvider jwtProvider;
 	private final JwtProperties jwtProperties;
 	private final KakaoProperties kakaoProperties;
@@ -56,16 +58,13 @@ public class MemberService {
 		switch(thisProvider) {
 			case KAKAO:
 				// kakao 토큰 받기 요청
-				KakaoOAuth2Token kakaoOAuth2Token = webClient.mutate()
-						.baseUrl(kakaoProperties.getUrl()).build().post()
-						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-						.body(BodyInserters.fromFormData("grant_type", kakaoProperties.getGrantType())
-								.with("client_id", kakaoProperties.getClientId())
-								.with("redirect_uri", oAuthRequest.getAuthorizedRedirectUri())
-								.with("code", oAuthRequest.getCode()))
-						.retrieve()
-						.bodyToMono(KakaoOAuth2Token.class)
-						.block();
+				MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+				params.add("grant_type", kakaoProperties.getGrantType());
+				params.add("client_id", kakaoProperties.getClientId());
+				params.add("redirect_uri", oAuthRequest.getAuthorizedRedirectUri());
+				params.add("code", oAuthRequest.getCode());
+				
+				KakaoOAuth2Token kakaoOAuth2Token = restTemplate.postForObject(kakaoProperties.getUrl(), params, KakaoOAuth2Token.class);
 				
 				String idToken = kakaoOAuth2Token.getId_token();
 				String payload = new String(Base64.getDecoder().decode(idToken.split("[.]")[1]));
