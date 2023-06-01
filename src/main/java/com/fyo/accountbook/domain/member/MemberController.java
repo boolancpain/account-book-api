@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fyo.accountbook.domain.member.MemberRequestDto.OAuthRequest;
-import com.fyo.accountbook.domain.member.MemberResponseDto.MemberInfo;
-import com.fyo.accountbook.domain.member.MemberResponseDto.TokenResponse;
+import com.fyo.accountbook.domain.member.request.OAuthRequest;
+import com.fyo.accountbook.domain.member.response.MemberInfo;
+import com.fyo.accountbook.domain.member.response.TokenResponse;
 
 import lombok.RequiredArgsConstructor;
 

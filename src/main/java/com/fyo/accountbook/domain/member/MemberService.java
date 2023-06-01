@@ -15,11 +15,11 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fyo.accountbook.domain.member.MemberRequestDto.OAuthRequest;
-import com.fyo.accountbook.domain.member.MemberResponseDto.KakaoOAuth2Token;
-import com.fyo.accountbook.domain.member.MemberResponseDto.KakaoOAuth2UserInfo;
-import com.fyo.accountbook.domain.member.MemberResponseDto.MemberInfo;
-import com.fyo.accountbook.domain.member.MemberResponseDto.TokenResponse;
+import com.fyo.accountbook.domain.member.request.OAuthRequest;
+import com.fyo.accountbook.domain.member.response.KakaoOAuth2Token;
+import com.fyo.accountbook.domain.member.response.KakaoOAuth2UserInfo;
+import com.fyo.accountbook.domain.member.response.MemberInfo;
+import com.fyo.accountbook.domain.member.response.TokenResponse;
 import com.fyo.accountbook.global.common.AuthError;
 import com.fyo.accountbook.global.common.CustomException;
 import com.fyo.accountbook.global.jwt.JwtProvider;
