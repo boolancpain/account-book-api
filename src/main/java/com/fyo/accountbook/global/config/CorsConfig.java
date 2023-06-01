@@ -2,11 +2,10 @@ package com.fyo.accountbook.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-
-import com.fyo.accountbook.global.property.CorsProperties;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,18 +17,20 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class CorsConfig {
-	private final CorsProperties corsProperties;
-	
 	/**
 	 * CorsFilter bean 생성
 	 */
 	@Bean
 	CorsFilter corsFilter() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(corsProperties.getAllowedOrigins());
-		configuration.setAllowedMethods(corsProperties.getAllowedMethods());
+		configuration.addAllowedOriginPattern("*");
 		configuration.addAllowedHeader("*");
 		configuration.setAllowCredentials(true);
+		configuration.addAllowedMethod(HttpMethod.GET);
+		configuration.addAllowedMethod(HttpMethod.POST);
+		configuration.addAllowedMethod(HttpMethod.DELETE);
+		configuration.addAllowedMethod(HttpMethod.PUT);
+		configuration.addAllowedMethod(HttpMethod.OPTIONS);
 		
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		// 모든 url에 대해 cors를 허용

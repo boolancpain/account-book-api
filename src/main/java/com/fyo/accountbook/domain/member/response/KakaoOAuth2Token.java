@@ -3,6 +3,7 @@ package com.fyo.accountbook.domain.member.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * kakao oAuth2 토큰 요청 response
@@ -12,6 +13,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class KakaoOAuth2Token {
 	private String access_token;
 	private String token_type;

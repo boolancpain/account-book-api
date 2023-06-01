@@ -150,8 +150,8 @@ public class MemberService {
 						.orElseThrow(() -> new CustomException(AuthError.INVALID_ACCESS_TOKEN)))
 				.orElseThrow(() -> new CustomException(AuthError.INVALID_ACCESS_TOKEN));
 		
-		// 5. TODO 저장소에서 회원 id로 refresh token 조회
-		// 6. TODO 저장소 refresh token과 쿠키의 refresh token 일치하는지 검증
+		// TODO 5. 저장소에서 회원 id로 refresh token 조회
+		// TODO 6. 저장소 refresh token과 쿠키의 refresh token 일치하는지 검증
 		
 		// 7. refresh token 재발행 가능한지 체크(만료일로부터 n일전)
 		if(jwtProvider.isReissuableRefreshToken(refreshToken)) {
@@ -165,7 +165,7 @@ public class MemberService {
 			int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime() / 1000).intValue();
 			CookieUtils.addCookie("refresh_token", newRefreshToken, maxAge);
 			
-			// 7-4. TODO 저장소에 refresh token 교체
+			// TODO 7-4. 저장소에 refresh token 교체
 		}
 		
 		// 8. access token 재발행 및 리턴
