@@ -13,9 +13,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OAuthRequest {
-	@NotBlank(message = "{validation.not_blank}")
+	@NotBlank
 	private String code;
 	
-	@NotBlank(message = "{validation.not_blank}")
+	@NotBlank
 	private String authorizedRedirectUri;
 }

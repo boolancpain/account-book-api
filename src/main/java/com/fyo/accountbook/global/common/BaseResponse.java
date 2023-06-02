@@ -20,5 +20,9 @@ import lombok.NoArgsConstructor;
 public class BaseResponse {
 	@JsonInclude(value = Include.NON_EMPTY)
 	private String code;
+	
 	private String message;
+	
+	@JsonInclude(value = Include.NON_NULL)
+	private Object data;
 }

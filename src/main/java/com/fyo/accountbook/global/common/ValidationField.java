@@ -15,4 +15,5 @@ import lombok.Getter;
 public class ValidationField {
 	private String field;
 	private String message;
+	private Object input;
 }

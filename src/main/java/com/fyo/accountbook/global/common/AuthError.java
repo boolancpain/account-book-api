@@ -15,8 +15,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum AuthError implements BaseError {
-	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "unauthorized", null),
-	FORBIDDEN(HttpStatus.FORBIDDEN, "forbidden", null),
+	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "error.401", "unauthorized"),
+	FORBIDDEN(HttpStatus.FORBIDDEN, "error.403", "forbidden"),
 	// access token
 	NOT_FOUND_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "jwt.access_token.not_found", "not_found_access_token"),
 	INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "jwt.access_token.invalid", "invalid_access_token"),

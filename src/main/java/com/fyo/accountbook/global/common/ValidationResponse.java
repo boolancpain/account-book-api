@@ -15,5 +15,6 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class ValidationResponse {
+	private String code;
 	private List<ValidationField> fields;
 }
