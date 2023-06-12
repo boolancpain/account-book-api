@@ -4,7 +4,6 @@ import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,15 +24,12 @@ import lombok.RequiredArgsConstructor;
 public class MemberController {
 	private final MemberService memberService;
 	
-	/**
+	/*
 	 * oAuth2 인증 요청
-	 * 
-	 * @param provider(KAKAO ...)
 	 */
-	@PostMapping("/login/oauth2/{provider}")
-	public ResponseEntity<TokenResponse> oAuth2Login(@PathVariable String provider
-			, @Valid @RequestBody OAuthRequest oAuthRequest) {
-		return ResponseEntity.ok(memberService.oAuth2Login(provider, oAuthRequest));
+	@PostMapping("/login/oauth2")
+	public ResponseEntity<TokenResponse> oAuth2Login(@Valid @RequestBody OAuthRequest oAuthRequest) {
+		return ResponseEntity.ok(memberService.oAuth2Login(oAuthRequest));
 	}
 	
 	/**

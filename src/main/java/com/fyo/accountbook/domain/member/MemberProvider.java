@@ -1,5 +1,7 @@
 package com.fyo.accountbook.domain.member;
 
+import com.fyo.accountbook.global.validator.ValidateEnum;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,6 +12,6 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum MemberProvider {
+public enum MemberProvider implements ValidateEnum {
 	KAKAO;
 }

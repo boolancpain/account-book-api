@@ -2,8 +2,12 @@ package com.fyo.accountbook.domain.member.request;
 
 import javax.validation.constraints.NotBlank;
 
+import com.fyo.accountbook.domain.member.MemberProvider;
+import com.fyo.accountbook.global.validator.EnumConstraint;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * OAuth2 인증을 위한 요청 객체(인가 코드 포함)
@@ -11,8 +15,12 @@ import lombok.Setter;
  * @author boolancpain
  */
 @Getter
-@Setter
+@Builder
+@AllArgsConstructor
 public class OAuthRequest {
+	@EnumConstraint(target = MemberProvider.class)
+	private String provider;
+	
 	@NotBlank
 	private String code;
 	

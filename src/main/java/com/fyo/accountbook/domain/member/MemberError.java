@@ -17,7 +17,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MemberError implements BaseError {
-	INVALID_PROVIDER(HttpStatus.CONFLICT, "oauth2.provider.invalid", "invalid_provider"),
+	INVALID_PROVIDER(HttpStatus.CONFLICT, "oauth2.invalid.provider", "invalid_provider"),
+	INVALID_AUTHORIZATION_CODE(HttpStatus.BAD_REQUEST, "oauth2.invalid.authorization_code", "invalid_authorization_code"),
 	FAILED_LOGIN(HttpStatus.INTERNAL_SERVER_ERROR, "oauth2.login.failed", "failed_login"),
 	;
 	

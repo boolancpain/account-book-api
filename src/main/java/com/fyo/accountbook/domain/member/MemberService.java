@@ -11,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,6 +32,7 @@ import com.fyo.accountbook.global.util.HttpHeaderUtils;
 import com.fyo.accountbook.global.util.ServletUtils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 회원 서비스
@@ -38,6 +41,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberService {
 	private final MemberRepository memberRepository;
 	
@@ -52,57 +56,79 @@ public class MemberService {
 	 * OAuth2 인증 요청 및 로그인 처리(토큰 발행)
 	 */
 	@Transactional
-	public TokenResponse oAuth2Login(String provider, OAuthRequest oAuthRequest) {
-		MemberProvider thisProvider = MemberProvider.valueOf(provider.toUpperCase());
+	public TokenResponse oAuth2Login(OAuthRequest oAuthRequest) {
+		MemberProvider provider = MemberProvider.valueOf(oAuthRequest.getProvider());
 		
-		switch(thisProvider) {
-			case KAKAO:
-				// kakao 토큰 받기 요청
-				MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-				params.add("grant_type", kakaoProperties.getGrantType());
-				params.add("client_id", kakaoProperties.getClientId());
-				params.add("redirect_uri", oAuthRequest.getAuthorizedRedirectUri());
-				params.add("code", oAuthRequest.getCode());
+		switch(provider) {
+		case KAKAO:
+			// 카카오 토큰 요청
+			KakaoOAuth2Token kakaoOAuth2Token = this.oAuthKakaoLogin(oAuthRequest.getCode(), oAuthRequest.getAuthorizedRedirectUri());
+			
+			String idToken = kakaoOAuth2Token.getId_token();
+			String payload = new String(Base64.getDecoder().decode(idToken.split("[.]")[1]));
+			
+			try {
+				KakaoOAuth2UserInfo userInfo = objectMapper.readValue(payload, KakaoOAuth2UserInfo.class);
 				
-				KakaoOAuth2Token kakaoOAuth2Token = restTemplate.postForObject(kakaoProperties.getUrl(), params, KakaoOAuth2Token.class);
+				// 회원을 조회하거나 생성
+				Member member = memberRepository.findByProviderAndProviderId(provider, userInfo.getSub())
+						.orElseGet(() -> Member.builder()
+								.provider(MemberProvider.KAKAO)
+								.providerId(userInfo.getSub())
+								.name(userInfo.getNickname())
+								.role(MemberRole.USER)
+								.build());
 				
-				String idToken = kakaoOAuth2Token.getId_token();
-				String payload = new String(Base64.getDecoder().decode(idToken.split("[.]")[1]));
+				memberRepository.save(member);
 				
-				try {
-					KakaoOAuth2UserInfo userInfo = objectMapper.readValue(payload, KakaoOAuth2UserInfo.class);
-					
-					// 회원을 조회하거나 생성
-					Member member = memberRepository.findByProviderAndProviderId(thisProvider, userInfo.getSub())
-							.orElseGet(() -> Member.builder()
-									.provider(MemberProvider.KAKAO)
-									.providerId(userInfo.getSub())
-									.name(userInfo.getNickname())
-									.role(MemberRole.USER)
-									.build());
-					
-					memberRepository.save(member);
-					
-					// access token 생성
-					String accessToken = jwtProvider.generateAccessToken(member);
-					// refresh token 생성
-					String refreshToken = jwtProvider.generateRefreshToken();
-					
-					// cookid에 refresh token add
-					// millisecond to second
-					int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime() / 1000).intValue();
-					CookieUtils.addCookie("refresh_token", refreshToken, maxAge);
-					
-					// TODO redis에 refresh token 저장
-					
-					return TokenResponse.builder()
-							.accessToken(accessToken)
-							.build();
-				} catch (JsonProcessingException e) {
-					throw new CustomException(MemberError.FAILED_LOGIN);
-				}
-			default:
-				throw new CustomException(MemberError.INVALID_PROVIDER);
+				// access token 생성
+				String accessToken = jwtProvider.generateAccessToken(member);
+				// refresh token 생성
+				String refreshToken = jwtProvider.generateRefreshToken();
+				
+				// cookid에 refresh token add
+				// millisecond to second
+				int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime() / 1000).intValue();
+				CookieUtils.addCookie("refresh_token", refreshToken, maxAge);
+				
+				// TODO redis에 refresh token 저장
+				
+				return TokenResponse.builder()
+						.accessToken(accessToken)
+						.build();
+			} catch (JsonProcessingException e) {
+				throw new CustomException(MemberError.FAILED_LOGIN);
+			}
+		default:
+			throw new CustomException(MemberError.INVALID_PROVIDER);
+		}
+	}
+	
+	/**
+	 * 카카오 로그인 후 전송받은 정보로 카카오에서 토큰 및 회원 정보를 가져온다.
+	 * 
+	 * @param authorizationCode : 카카오 인가 코드
+	 * @param redirectUri : 인가 코드가 리다이렉트된 URI
+	 * @return 토큰과 사용자 인증 정보
+	 */
+	public KakaoOAuth2Token oAuthKakaoLogin(String authorizationCode, String redirectUri) {
+		try {
+			// kakao 토큰 받기 요청
+			MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+			params.add("grant_type", kakaoProperties.getGrantType());
+			params.add("client_id", kakaoProperties.getClientId());
+			params.add("code", authorizationCode);
+			params.add("redirect_uri", redirectUri);
+			return restTemplate.postForObject(kakaoProperties.getUrl(), params, KakaoOAuth2Token.class);
+		} catch (HttpClientErrorException ce) {
+			log.error("http client error := {}", ce.getMessage());
+			throw new CustomException(MemberError.INVALID_AUTHORIZATION_CODE);
+		} catch (HttpServerErrorException se) {
+			log.error("http server error := {}", se.getMessage());
+			throw new CustomException(MemberError.FAILED_LOGIN);
+		} catch (Exception e) {
+			log.error("kakao login call error := {}", e.getMessage());
+			throw new CustomException(MemberError.FAILED_LOGIN);
 		}
 	}
 	

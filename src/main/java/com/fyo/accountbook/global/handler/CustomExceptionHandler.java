@@ -35,10 +35,10 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 	 */
 	@ExceptionHandler(CustomException.class)
 	protected ResponseEntity<BaseResponse> handleCustomException(CustomException ce) {
-		log.debug("{} error! msg : {}", ce.getBaseError().getStatus(), ce.getBaseError().getCode());
+		log.debug("{} error! msg : {}", ce.getError().getStatus(), ce.getError().getCode());
 		return ResponseEntity
-				.status(ce.getBaseError().getStatus())
-				.body(ce.getBaseError().toBaseResponse());
+				.status(ce.getError().getStatus())
+				.body(ce.getError().toBaseResponse());
 	}
 	
 	/**
