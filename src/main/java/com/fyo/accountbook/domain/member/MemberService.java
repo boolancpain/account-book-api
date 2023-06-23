@@ -9,11 +9,6 @@ import javax.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,13 +21,11 @@ import com.fyo.accountbook.global.common.AuthError;
 import com.fyo.accountbook.global.common.CustomException;
 import com.fyo.accountbook.global.jwt.JwtProvider;
 import com.fyo.accountbook.global.property.JwtProperties;
-import com.fyo.accountbook.global.property.KakaoProperties;
 import com.fyo.accountbook.global.util.CookieUtils;
 import com.fyo.accountbook.global.util.HttpHeaderUtils;
 import com.fyo.accountbook.global.util.ServletUtils;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 회원 서비스
@@ -41,16 +34,14 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MemberService {
 	private final MemberRepository memberRepository;
+	private final OAuth2Service oAuth2Service;
 	
 	private final ObjectMapper objectMapper;
-	private final RestTemplate restTemplate;
 	
 	private final JwtProvider jwtProvider;
 	private final JwtProperties jwtProperties;
-	private final KakaoProperties kakaoProperties;
 	
 	/**
 	 * OAuth2 인증 요청 및 로그인 처리(토큰 발행)
@@ -62,7 +53,7 @@ public class MemberService {
 		switch(provider) {
 		case KAKAO:
 			// 카카오 토큰 요청
-			KakaoOAuth2Token kakaoOAuth2Token = this.oAuthKakaoLogin(oAuthRequest.getCode(), oAuthRequest.getAuthorizedRedirectUri());
+			KakaoOAuth2Token kakaoOAuth2Token = oAuth2Service.kakaoLogin(oAuthRequest.getCode(), oAuthRequest.getAuthorizedRedirectUri());
 			
 			String idToken = kakaoOAuth2Token.getId_token();
 			String payload = new String(Base64.getDecoder().decode(idToken.split("[.]")[1]));
@@ -101,34 +92,6 @@ public class MemberService {
 			}
 		default:
 			throw new CustomException(MemberError.INVALID_PROVIDER);
-		}
-	}
-	
-	/**
-	 * 카카오 로그인 후 전송받은 정보로 카카오에서 토큰 및 회원 정보를 가져온다.
-	 * 
-	 * @param authorizationCode : 카카오 인가 코드
-	 * @param redirectUri : 인가 코드가 리다이렉트된 URI
-	 * @return 토큰과 사용자 인증 정보
-	 */
-	public KakaoOAuth2Token oAuthKakaoLogin(String authorizationCode, String redirectUri) {
-		try {
-			// kakao 토큰 받기 요청
-			MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-			params.add("grant_type", kakaoProperties.getGrantType());
-			params.add("client_id", kakaoProperties.getClientId());
-			params.add("code", authorizationCode);
-			params.add("redirect_uri", redirectUri);
-			return restTemplate.postForObject(kakaoProperties.getUrl(), params, KakaoOAuth2Token.class);
-		} catch (HttpClientErrorException ce) {
-			log.error("http client error := {}", ce.getMessage());
-			throw new CustomException(MemberError.INVALID_AUTHORIZATION_CODE);
-		} catch (HttpServerErrorException se) {
-			log.error("http server error := {}", se.getMessage());
-			throw new CustomException(MemberError.FAILED_LOGIN);
-		} catch (Exception e) {
-			log.error("kakao login call error := {}", e.getMessage());
-			throw new CustomException(MemberError.FAILED_LOGIN);
 		}
 	}
 	
