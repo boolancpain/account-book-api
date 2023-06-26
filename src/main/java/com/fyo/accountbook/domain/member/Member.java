@@ -56,4 +56,9 @@ public class Member extends BaseTimeEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "account_id")
 	private Account account;
+	
+	// 장부 업데이트
+	public void updateAccount(Account account) {
+		this.account = account;
+	}
 }

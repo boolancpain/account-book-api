@@ -40,15 +40,24 @@ public class Account extends BaseTimeEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "account_id")
+	@OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+	//@JoinColumn(name = "account_id")
 	private List<Member> members;
 	
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "account_id")
+	@OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+	//@JoinColumn(name = "account_id")
 	private List<Transaction> transactions;
 	
 	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "account_id")
+	@JoinColumn(name = "accountId")
 	private List<Category> categories;
+	
+	/**
+	 * 장부의 회원 목록에서 회원을 제거한다.
+	 * 
+	 * @param memberId : 회원 ID
+	 */
+	public void removeMember(Long memberId) {
+		this.members.removeIf(member -> member.getId() == memberId);
+	}
 }

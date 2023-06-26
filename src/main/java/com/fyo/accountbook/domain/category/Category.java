@@ -33,6 +33,9 @@ public class Category extends BaseTimeEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@Column
+	private Long accountId;
+	
 	@Column(length = 10)
 	private String alias;
 	
