@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * Member Repository
+ * 회원 Repository
  * 
  * @author boolancpain
  */

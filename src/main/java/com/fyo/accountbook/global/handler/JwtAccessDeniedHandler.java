@@ -14,7 +14,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fyo.accountbook.global.common.AuthError;
+import com.fyo.accountbook.global.error.AuthError;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

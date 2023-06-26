@@ -4,7 +4,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 
 /**
- * Message Util class
+ * Message util class
  * 
  * @author boolancpain
  */

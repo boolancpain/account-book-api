@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.fyo.accountbook.global.common.BaseResponse;
-import com.fyo.accountbook.global.common.CustomException;
-import com.fyo.accountbook.global.common.ValidationField;
-import com.fyo.accountbook.global.common.ValidationResponse;
+import com.fyo.accountbook.global.error.CustomException;
+import com.fyo.accountbook.global.response.BaseResponse;
+import com.fyo.accountbook.global.response.ValidationField;
+import com.fyo.accountbook.global.response.ValidationResponse;
 import com.fyo.accountbook.global.util.MessageUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +49,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 		log.debug("runtime error! msg : {}", re.getLocalizedMessage());
 		return ResponseEntity
 				.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(BaseResponse.builder().message(MessageUtils.getMessage("error.500")).build());
+				.body(BaseResponse.builder().message(MessageUtils.getMessage("internal_server_error")).build());
 	}
 	
 	/**

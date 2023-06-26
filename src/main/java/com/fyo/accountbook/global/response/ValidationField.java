@@ -1,4 +1,4 @@
-package com.fyo.accountbook.global.common;
+package com.fyo.accountbook.global.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

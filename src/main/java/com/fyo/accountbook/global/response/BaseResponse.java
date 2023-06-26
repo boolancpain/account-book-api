@@ -1,4 +1,4 @@
-package com.fyo.accountbook.global.common;
+package com.fyo.accountbook.global.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

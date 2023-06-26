@@ -14,7 +14,7 @@ import com.fyo.accountbook.domain.member.response.TokenResponse;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Member Controller
+ * 회원 Controller
  * 
  * @author boolancpain
  */

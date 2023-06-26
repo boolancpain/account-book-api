@@ -8,8 +8,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fyo.accountbook.domain.member.response.KakaoOAuth2Token;
-import com.fyo.accountbook.global.common.CustomException;
-import com.fyo.accountbook.global.property.KakaoProperties;
+import com.fyo.accountbook.global.error.AuthError;
+import com.fyo.accountbook.global.error.CustomException;
+import com.fyo.accountbook.global.properties.KakaoProperty;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OAuth2Service {
 	private final RestTemplate restTemplate;
-	private final KakaoProperties kakaoProperties;
+	private final KakaoProperty kakaoProperty;
 	
 	/**
 	 * 카카오 로그인 후 전송받은 정보로 카카오에서 토큰 및 회원 정보를 가져온다.
@@ -37,20 +38,20 @@ public class OAuth2Service {
 		try {
 			// kakao 토큰 받기 요청
 			MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-			params.add("grant_type", kakaoProperties.getGrantType());
-			params.add("client_id", kakaoProperties.getClientId());
+			params.add("grant_type", kakaoProperty.getGrantType());
+			params.add("client_id", kakaoProperty.getClientId());
 			params.add("code", authorizationCode);
 			params.add("redirect_uri", redirectUri);
-			return restTemplate.postForObject(kakaoProperties.getUrl(), params, KakaoOAuth2Token.class);
+			return restTemplate.postForObject(kakaoProperty.getUrl(), params, KakaoOAuth2Token.class);
 		} catch (HttpClientErrorException ce) {
 			log.error("http client error := {}", ce.getMessage());
-			throw new CustomException(MemberError.INVALID_AUTHORIZATION_CODE);
+			throw new CustomException(AuthError.INVALID_AUTHORIZATION_CODE);
 		} catch (HttpServerErrorException se) {
 			log.error("http server error := {}", se.getMessage());
-			throw new CustomException(MemberError.FAILED_LOGIN);
+			throw new CustomException(AuthError.FAILED_LOGIN);
 		} catch (Exception e) {
 			log.error("kakao login call error := {}", e.getMessage());
-			throw new CustomException(MemberError.FAILED_LOGIN);
+			throw new CustomException(AuthError.FAILED_LOGIN);
 		}
 	}
 }

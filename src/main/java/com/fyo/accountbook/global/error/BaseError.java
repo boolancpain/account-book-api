@@ -1,6 +1,8 @@
-package com.fyo.accountbook.global.common;
+package com.fyo.accountbook.global.error;
 
 import org.springframework.http.HttpStatus;
+
+import com.fyo.accountbook.global.response.BaseResponse;
 
 /**
  * 공통 에러 정의 Interface

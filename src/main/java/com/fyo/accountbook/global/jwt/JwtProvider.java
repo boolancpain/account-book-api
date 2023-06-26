@@ -16,9 +16,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import com.fyo.accountbook.domain.member.Member;
-import com.fyo.accountbook.global.common.AuthError;
-import com.fyo.accountbook.global.common.CustomException;
-import com.fyo.accountbook.global.property.JwtProperties;
+import com.fyo.accountbook.global.error.AuthError;
+import com.fyo.accountbook.global.error.CustomException;
+import com.fyo.accountbook.global.properties.JwtProperty;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -38,13 +38,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtProvider {
 	private final Key key;
-	private final JwtProperties jwtProperties;
+	private final JwtProperty jwtProperty;
 	
 	private static final String AUTHORITIES_KEY = "auth";
 	
-	public JwtProvider(JwtProperties jwtProperties) {
-		this.jwtProperties = jwtProperties;
-		this.key = Keys.hmacShaKeyFor(this.jwtProperties.getSecret().getBytes());
+	public JwtProvider(JwtProperty jwtProperty) {
+		this.jwtProperty = jwtProperty;
+		this.key = Keys.hmacShaKeyFor(this.jwtProperty.getSecret().getBytes());
 	}
 	
 	/**
@@ -57,7 +57,7 @@ public class JwtProvider {
 		return Jwts.builder()
 				.setSubject(String.valueOf(member.getId()))
 				.signWith(key, SignatureAlgorithm.HS512)
-				.setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getAccessTokenExpirationTime()))
+				.setExpiration(new Date(System.currentTimeMillis() + jwtProperty.getAccessTokenExpirationTime()))
 				.claim(AUTHORITIES_KEY, member.getRole().name())
 				.compact();
 	}
@@ -69,7 +69,7 @@ public class JwtProvider {
 	 */
 	public String generateRefreshToken() {
 		return Jwts.builder()
-				.setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getRefreshTokenExpirationTime()))
+				.setExpiration(new Date(System.currentTimeMillis() + jwtProperty.getRefreshTokenExpirationTime()))
 				.signWith(key, SignatureAlgorithm.HS512)
 				.compact();
 	}
@@ -139,6 +139,6 @@ public class JwtProvider {
 				.toInstant()
 				.atZone(ZoneId.systemDefault())
 				.toLocalDateTime();
-		return expiration.minusDays(jwtProperties.getReissuableDayBeforeExpirationDay()).isBefore(LocalDateTime.now());
+		return expiration.minusDays(jwtProperty.getReissuableDayBeforeExpirationDay()).isBefore(LocalDateTime.now());
 	}
 }

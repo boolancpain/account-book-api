@@ -2,8 +2,8 @@ package com.fyo.accountbook.domain.member;
 
 import org.springframework.http.HttpStatus;
 
-import com.fyo.accountbook.global.common.BaseError;
-import com.fyo.accountbook.global.common.BaseResponse;
+import com.fyo.accountbook.global.error.BaseError;
+import com.fyo.accountbook.global.response.BaseResponse;
 import com.fyo.accountbook.global.util.MessageUtils;
 
 import lombok.Getter;
@@ -17,9 +17,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MemberError implements BaseError {
-	INVALID_PROVIDER(HttpStatus.CONFLICT, "oauth2.invalid.provider", "invalid_provider"),
-	INVALID_AUTHORIZATION_CODE(HttpStatus.BAD_REQUEST, "oauth2.invalid.authorization_code", "invalid_authorization_code"),
-	FAILED_LOGIN(HttpStatus.INTERNAL_SERVER_ERROR, "oauth2.login.failed", "failed_login"),
+	NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "member.not_found", "not_found_member")
 	;
 	
 	private final HttpStatus status;

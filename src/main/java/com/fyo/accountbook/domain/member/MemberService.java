@@ -6,8 +6,6 @@ import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.transaction.Transactional;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,18 +15,19 @@ import com.fyo.accountbook.domain.member.response.KakaoOAuth2Token;
 import com.fyo.accountbook.domain.member.response.KakaoOAuth2UserInfo;
 import com.fyo.accountbook.domain.member.response.MemberInfo;
 import com.fyo.accountbook.domain.member.response.TokenResponse;
-import com.fyo.accountbook.global.common.AuthError;
-import com.fyo.accountbook.global.common.CustomException;
+import com.fyo.accountbook.global.error.AuthError;
+import com.fyo.accountbook.global.error.CustomException;
 import com.fyo.accountbook.global.jwt.JwtProvider;
-import com.fyo.accountbook.global.property.JwtProperties;
+import com.fyo.accountbook.global.properties.JwtProperty;
 import com.fyo.accountbook.global.util.CookieUtils;
 import com.fyo.accountbook.global.util.HttpHeaderUtils;
+import com.fyo.accountbook.global.util.SecurityUtils;
 import com.fyo.accountbook.global.util.ServletUtils;
 
 import lombok.RequiredArgsConstructor;
 
 /**
- * 회원 서비스
+ * 회원 Service
  * 
  * @author boolancpain
  */
@@ -41,7 +40,7 @@ public class MemberService {
 	private final ObjectMapper objectMapper;
 	
 	private final JwtProvider jwtProvider;
-	private final JwtProperties jwtProperties;
+	private final JwtProperty jwtProperty;
 	
 	/**
 	 * OAuth2 인증 요청 및 로그인 처리(토큰 발행)
@@ -79,7 +78,7 @@ public class MemberService {
 				
 				// cookid에 refresh token add
 				// millisecond to second
-				int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime() / 1000).intValue();
+				int maxAge = Long.valueOf(jwtProperty.getRefreshTokenExpirationTime() / 1000).intValue();
 				CookieUtils.addCookie("refresh_token", refreshToken, maxAge);
 				
 				// TODO redis에 refresh token 저장
@@ -88,10 +87,10 @@ public class MemberService {
 						.accessToken(accessToken)
 						.build();
 			} catch (JsonProcessingException e) {
-				throw new CustomException(MemberError.FAILED_LOGIN);
+				throw new CustomException(AuthError.FAILED_LOGIN);
 			}
 		default:
-			throw new CustomException(MemberError.INVALID_PROVIDER);
+			throw new CustomException(AuthError.INVALID_PROVIDER);
 		}
 	}
 	
@@ -101,11 +100,9 @@ public class MemberService {
 	 * @return 로그인 회원 정보
 	 */
 	public MemberInfo getMyInfo() {
-		// SecurityContextHolder에서 Authentication 객체 추출
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		
-		Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-				.orElseThrow(() -> new CustomException(AuthError.UNAUTHORIZED));
+		// 현재 로그인 회원 조회
+		Member member = memberRepository.findById(SecurityUtils.getCurrentMemberId())
+				.orElseThrow(() -> new CustomException(MemberError.NOT_FOUND_MEMBER));
 		
 		return MemberInfo.builder()
 				.name(member.getName())
@@ -151,7 +148,7 @@ public class MemberService {
 			CookieUtils.deleteCookie("refresh_token");
 			
 			// 7-3. 새로운 refresh token을 cookie에 추가
-			int maxAge = Long.valueOf(jwtProperties.getRefreshTokenExpirationTime() / 1000).intValue();
+			int maxAge = Long.valueOf(jwtProperty.getRefreshTokenExpirationTime() / 1000).intValue();
 			CookieUtils.addCookie("refresh_token", newRefreshToken, maxAge);
 			
 			// TODO 7-4. 저장소에 refresh token 교체

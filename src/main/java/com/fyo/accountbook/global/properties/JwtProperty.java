@@ -1,4 +1,4 @@
-package com.fyo.accountbook.global.property;
+package com.fyo.accountbook.global.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 @Configuration
 @ConfigurationProperties(prefix = "app.jwt")
-public class JwtProperties {
+public class JwtProperty {
 	private String secret;
 	
 	private long accessTokenExpirationTime;
