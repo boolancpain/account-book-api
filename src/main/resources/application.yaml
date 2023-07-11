@@ -17,7 +17,6 @@ spring:
     properties:
       hibernate:
         "[show_sql]": true
-        
   jackson:
     deserialization:
       fail-on-unknown-properties: false
