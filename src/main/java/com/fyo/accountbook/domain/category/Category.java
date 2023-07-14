@@ -41,4 +41,12 @@ public class Category extends BaseTimeEntity {
 	
 	@Column(nullable = false)
 	private int sequence;
+	
+	/**
+	 * 카테고리 id로 동일한 객체인지 비교할 수 있도록 equals 오버라이딩
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof Category ? this.id == ((Category) obj).getId() : false;
+	}
 }

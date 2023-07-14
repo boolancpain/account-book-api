@@ -5,12 +5,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.fyo.accountbook.domain.account.Account;
 import com.fyo.accountbook.domain.account.AccountError;
 import com.fyo.accountbook.domain.category.response.CategoryInfo;
 import com.fyo.accountbook.domain.member.Member;
 import com.fyo.accountbook.domain.member.MemberError;
 import com.fyo.accountbook.domain.member.MemberRepository;
 import com.fyo.accountbook.global.error.CustomException;
+import com.fyo.accountbook.global.response.BaseResponse;
+import com.fyo.accountbook.global.util.MessageUtils;
 import com.fyo.accountbook.global.util.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -49,5 +52,42 @@ public class CategoryService {
 						.alias(category.getAlias())
 						.build())
 				.collect(Collectors.toList());
+	}
+	
+	/**
+	 * 장부의 카테고리 하나를 삭제한다.
+	 * 
+	 * @param accountId : 장부 id
+	 * @param categoryId : 카테고리 id
+	 * @return 삭제 결과
+	 */
+	public BaseResponse deleteCategory(Long accountId, Long categoryId) {
+		// 현재 로그인 회원 조회
+		Member member = memberRepository.findById(SecurityUtils.getCurrentMemberId())
+				.orElseThrow(() -> new CustomException(MemberError.NOT_FOUND_MEMBER));
+		
+		// 장부 보유 유무와 장부 ID가 일치하는지 체크
+		Account account = member.getAccount();
+		if(account == null || account.getId() != accountId) {
+			// 404
+			throw new CustomException(AccountError.NOT_FOUND_ACCOUNT);
+		}
+		
+		// 카테고리 조회
+		Category targetCategory = categoryRepository.findByIdAndAccountId(categoryId, accountId)
+				.orElseThrow(() -> new CustomException(CategoryError.NOT_FOUND_CATEGORY));
+		
+		// 장부에 포함되어 있는 카테고리인지 체크
+		if(!account.getCategories().contains(targetCategory)) {
+			throw new CustomException(CategoryError.NOT_FOUND_CATEGORY);
+		}
+		
+		// 카테고리 삭제
+		categoryRepository.delete(targetCategory);
+		
+		return BaseResponse.builder()
+				.code("ok")
+				.message(MessageUtils.getMessage("category.delete"))
+				.build();
 	}
 }
