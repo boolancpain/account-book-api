@@ -2,11 +2,16 @@ package com.fyo.accountbook.domain.category;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fyo.accountbook.domain.category.request.CategoryCreate;
 import com.fyo.accountbook.domain.category.response.CategoryInfo;
 import com.fyo.accountbook.global.response.BaseResponse;
 
@@ -43,5 +48,17 @@ public class CategoryController {
 	@DeleteMapping("/accounts/{accountId}/categories/{categoryId}")
 	public BaseResponse deleteCategory(@PathVariable Long accountId, @PathVariable Long categoryId) {
 		return categoryService.deleteCategory(accountId, categoryId);
+	}
+	
+	/**
+	 * 카테고리를 생성한다.
+	 * 
+	 * @param accountId
+	 * @param categoryCreate
+	 * @return 생성된 카테고리
+	 */
+	@PostMapping("/accounts/{accountId}/categories")
+	public CategoryInfo createCategory(@PathVariable Long accountId, @Valid @RequestBody CategoryCreate categoryCreate) {
+		return categoryService.createCategory(accountId, categoryCreate);
 	}
 }

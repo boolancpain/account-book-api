@@ -3,10 +3,13 @@ package com.fyo.accountbook.domain.category;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.stereotype.Service;
 
 import com.fyo.accountbook.domain.account.Account;
 import com.fyo.accountbook.domain.account.AccountError;
+import com.fyo.accountbook.domain.category.request.CategoryCreate;
 import com.fyo.accountbook.domain.category.response.CategoryInfo;
 import com.fyo.accountbook.domain.member.Member;
 import com.fyo.accountbook.domain.member.MemberError;
@@ -88,6 +91,49 @@ public class CategoryService {
 		return BaseResponse.builder()
 				.code("ok")
 				.message(MessageUtils.getMessage("category.delete"))
+				.build();
+	}
+	
+	/**
+	 * 카테고리를 생성한다.
+	 * 
+	 * @param accountId : 장부 id
+	 * @param categoryCreate
+	 * @return 생성된 카테고리
+	 */
+	public CategoryInfo createCategory(Long accountId, @Valid CategoryCreate categoryCreate) {
+		// 현재 로그인 회원 조회
+		Member member = memberRepository.findById(SecurityUtils.getCurrentMemberId())
+				.orElseThrow(() -> new CustomException(MemberError.NOT_FOUND_MEMBER));
+		
+		// 장부 보유 유무와 장부 ID가 일치하는지 체크
+		Account account = member.getAccount();
+		if(account == null || account.getId() != accountId) {
+			// 404
+			throw new CustomException(AccountError.NOT_FOUND_ACCOUNT);
+		}
+		
+		// 이미 입력된 카테고리 설명인지 체크
+		if(account.existsCategoryAlias(categoryCreate.getAlias())) {
+			// 400
+			throw new CustomException(CategoryError.EXISTS_CATEGORY);
+		}
+		
+		// 카테고리 생성
+		Category category = Category.builder()
+				.alias(categoryCreate.getAlias())
+				.sequence(account.getCategories().size())
+				.build();
+		
+		// 장부에 추가
+		account.getCategories().add(category);
+		
+		// 저장
+		category = categoryRepository.save(category);
+		
+		return CategoryInfo.builder()
+				.categoryId(category.getId())
+				.alias(category.getAlias())
 				.build();
 	}
 }

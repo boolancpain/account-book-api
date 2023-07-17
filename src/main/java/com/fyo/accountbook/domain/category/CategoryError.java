@@ -17,7 +17,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum CategoryError implements BaseError {
-	NOT_FOUND_CATEGORY(HttpStatus.NOT_FOUND, "category.not_found", "not_found_category")
+	NOT_FOUND_CATEGORY(HttpStatus.NOT_FOUND, "category.not_found", "not_found_category"),
+	
+	EXISTS_CATEGORY(HttpStatus.BAD_REQUEST, "category.exists", "already_exists_category")
 	;
 	
 	private final HttpStatus status;

@@ -41,11 +41,9 @@ public class Account extends BaseTimeEntity {
 	private Long id;
 	
 	@OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
-	//@JoinColumn(name = "account_id")
 	private List<Member> members;
 	
 	@OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
-	//@JoinColumn(name = "account_id")
 	private List<Transaction> transactions;
 	
 	@OneToMany(fetch = FetchType.LAZY)
@@ -59,5 +57,16 @@ public class Account extends BaseTimeEntity {
 	 */
 	public void removeMember(Long memberId) {
 		this.members.removeIf(member -> member.getId() == memberId);
+	}
+	
+	/**
+	 * 카테고리의 설명값으로 존재하는 카테고리인지 체크한다.
+	 * 
+	 * @param alias : 카테고리 설명
+	 * @return 카테고리 존재 여부
+	 */
+	public boolean existsCategoryAlias(String alias) {
+		return this.categories.stream()
+				.anyMatch(category -> category.getAlias().equalsIgnoreCase(alias));
 	}
 }
