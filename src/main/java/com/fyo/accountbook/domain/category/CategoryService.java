@@ -3,13 +3,13 @@ package com.fyo.accountbook.domain.category;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.validation.Valid;
+import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
 import com.fyo.accountbook.domain.account.Account;
 import com.fyo.accountbook.domain.account.AccountError;
-import com.fyo.accountbook.domain.category.request.CategoryCreate;
+import com.fyo.accountbook.domain.category.request.CategoryRequest;
 import com.fyo.accountbook.domain.category.response.CategoryInfo;
 import com.fyo.accountbook.domain.member.Member;
 import com.fyo.accountbook.domain.member.MemberError;
@@ -98,10 +98,10 @@ public class CategoryService {
 	 * 카테고리를 생성한다.
 	 * 
 	 * @param accountId : 장부 id
-	 * @param categoryCreate
+	 * @param categoryRequest : 카테고리 생성 정보
 	 * @return 생성된 카테고리
 	 */
-	public CategoryInfo createCategory(Long accountId, @Valid CategoryCreate categoryCreate) {
+	public CategoryInfo createCategory(Long accountId, CategoryRequest categoryRequest) {
 		// 현재 로그인 회원 조회
 		Member member = memberRepository.findById(SecurityUtils.getCurrentMemberId())
 				.orElseThrow(() -> new CustomException(MemberError.NOT_FOUND_MEMBER));
@@ -114,14 +114,14 @@ public class CategoryService {
 		}
 		
 		// 이미 입력된 카테고리 설명인지 체크
-		if(account.existsCategoryAlias(categoryCreate.getAlias())) {
+		if(account.existsCategoryAlias(categoryRequest.getAlias())) {
 			// 400
 			throw new CustomException(CategoryError.EXISTS_CATEGORY);
 		}
 		
 		// 카테고리 생성
 		Category category = Category.builder()
-				.alias(categoryCreate.getAlias())
+				.alias(categoryRequest.getAlias())
 				.sequence(account.getCategories().size())
 				.build();
 		
@@ -134,6 +134,46 @@ public class CategoryService {
 		return CategoryInfo.builder()
 				.categoryId(category.getId())
 				.alias(category.getAlias())
+				.build();
+	}
+	
+	/**
+	 * 카테고리를 수정한다.
+	 * 
+	 * @param accountId : 장부 id
+	 * @param categoryId : 카테고리 id
+	 * @param categoryRequest : 카테고리 수정 정보
+	 * @return 수정된 카테고리
+	 */
+	@Transactional
+	public CategoryInfo updateCategory(Long accountId, Long categoryId, CategoryRequest categoryRequest) {
+		// 현재 로그인 회원 조회
+		Member member = memberRepository.findById(SecurityUtils.getCurrentMemberId())
+				.orElseThrow(() -> new CustomException(MemberError.NOT_FOUND_MEMBER));
+		
+		// 장부 보유 유무와 장부 ID가 일치하는지 체크
+		Account account = member.getAccount();
+		if(account == null || account.getId() != accountId) {
+			// 404
+			throw new CustomException(AccountError.NOT_FOUND_ACCOUNT);
+		}
+		
+		// 카테고리 조회
+		Category targetCategory = categoryRepository.findByIdAndAccountId(categoryId, accountId)
+				.orElseThrow(() -> new CustomException(CategoryError.NOT_FOUND_CATEGORY));
+		
+		// 이미 입력된 카테고리 설명인지 체크
+		if(account.existsCategoryAlias(categoryRequest.getAlias())) {
+			// 400
+			throw new CustomException(CategoryError.EXISTS_CATEGORY);
+		}
+		
+		// alias 수정
+		targetCategory.updateAlias(categoryRequest.getAlias());
+		
+		return CategoryInfo.builder()
+				.categoryId(targetCategory.getId())
+				.alias(targetCategory.getAlias())
 				.build();
 	}
 }

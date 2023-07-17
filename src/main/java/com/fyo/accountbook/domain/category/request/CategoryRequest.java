@@ -10,6 +10,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class CategoryCreate {
+public class CategoryRequest {
 	private String alias;
 }

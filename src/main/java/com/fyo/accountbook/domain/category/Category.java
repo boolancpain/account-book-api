@@ -49,4 +49,13 @@ public class Category extends BaseTimeEntity {
 	public boolean equals(Object obj) {
 		return obj instanceof Category ? this.id == ((Category) obj).getId() : false;
 	}
+	
+	/**
+	 * 카테고리 alias 수정
+	 * 
+	 * @param alias
+	 */
+	public void updateAlias(String alias) {
+		this.alias = alias;
+	}
 }
