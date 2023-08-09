@@ -28,7 +28,7 @@ public class BaseResponse {
 	private Object data;
 	
 	/**
-	 * 성공 응답 객체를 반환한다.
+	 * 성공 응답 객체를 반환한다.1
 	 * 
 	 * @return BaseResponse
 	 */
