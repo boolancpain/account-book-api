@@ -15,8 +15,6 @@ import com.fyo.accountbook.domain.member.Member;
 import com.fyo.accountbook.domain.member.MemberError;
 import com.fyo.accountbook.domain.member.MemberRepository;
 import com.fyo.accountbook.global.error.CustomException;
-import com.fyo.accountbook.global.response.BaseResponse;
-import com.fyo.accountbook.global.util.MessageUtils;
 import com.fyo.accountbook.global.util.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -64,7 +62,7 @@ public class CategoryService {
 	 * @param categoryId : 카테고리 id
 	 * @return 삭제 결과
 	 */
-	public BaseResponse deleteCategory(Long accountId, Long categoryId) {
+	public void deleteCategory(Long accountId, Long categoryId) {
 		// 현재 로그인 회원 조회
 		Member member = memberRepository.findById(SecurityUtils.getCurrentMemberId())
 				.orElseThrow(() -> new CustomException(MemberError.NOT_FOUND_MEMBER));
@@ -87,11 +85,6 @@ public class CategoryService {
 		
 		// 카테고리 삭제
 		categoryRepository.delete(targetCategory);
-		
-		return BaseResponse.builder()
-				.code("ok")
-				.message(MessageUtils.getMessage("category.delete"))
-				.build();
 	}
 	
 	/**

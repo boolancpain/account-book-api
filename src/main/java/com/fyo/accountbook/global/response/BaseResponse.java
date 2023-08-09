@@ -7,7 +7,6 @@ import com.fyo.accountbook.global.util.MessageUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * 공통 응답 class
@@ -17,7 +16,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class BaseResponse {
 	@JsonInclude(value = Include.NON_EMPTY)
 	private String code;
@@ -28,9 +26,10 @@ public class BaseResponse {
 	private Object data;
 	
 	/**
-	 * 성공 응답 객체를 반환한다.1
+	 * 기본 응답 객체를 생성한다.
 	 * 
-	 * @return BaseResponse
+	 * @param data
+	 * @return 기본 응답 객체
 	 */
 	public static BaseResponse ok(Object data) {
 		return BaseResponse.builder()

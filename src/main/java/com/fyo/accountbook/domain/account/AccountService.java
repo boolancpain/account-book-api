@@ -15,8 +15,6 @@ import com.fyo.accountbook.domain.member.MemberRepository;
 import com.fyo.accountbook.domain.transaction.TransactionRepository;
 import com.fyo.accountbook.global.enums.DefaultCategory;
 import com.fyo.accountbook.global.error.CustomException;
-import com.fyo.accountbook.global.response.BaseResponse;
-import com.fyo.accountbook.global.util.MessageUtils;
 import com.fyo.accountbook.global.util.SecurityUtils;
 
 import io.jsonwebtoken.lang.Collections;
@@ -98,7 +96,7 @@ public class AccountService {
 	 * @return 삭제 결과
 	 */
 	@Transactional
-	public BaseResponse deleteAccount(Long accountId) {
+	public void deleteAccount(Long accountId) {
 		// 현재 로그인 회원 조회
 		Member member = memberRepository.findById(SecurityUtils.getCurrentMemberId())
 				.orElseThrow(() -> new CustomException(MemberError.NOT_FOUND_MEMBER));
@@ -135,10 +133,5 @@ public class AccountService {
 			log.debug("장부(accountId:{})에서 해당 회원(memberId:{})의 거래내역 모두 null 처리", accountId, member.getId());
 			transactionRepository.updateAllByAccountIdAndMemberId(accountId, member.getId());
 		}
-		
-		return BaseResponse.builder()
-				.code("ok")
-				.message(MessageUtils.getMessage("account.delete"))
-				.build();
 	}
 }
