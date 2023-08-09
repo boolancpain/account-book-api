@@ -1,5 +1,8 @@
 package com.fyo.accountbook.domain.transaction;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -27,4 +30,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 	@Modifying(clearAutomatically = true)
 	@Query(value = "UPDATE transaction SET member_id = null WHERE member_id = :memberId AND account_id = :accountId", nativeQuery = true)
 	public void updateAllByAccountIdAndMemberId(@Param("accountId") Long accountId, @Param("memberId") Long memberId);
+	
+	/**
+	 * 장부 id와 검색 기간으로 거래내역 조회
+	 * 
+	 * @param accountId : 장부 id
+	 * @param startDate : 검색 시작일
+	 * @param endDate : 검색 종료일
+	 * @return 거래내역
+	 */
+	public List<Transaction> findAllByAccountIdAndTransactedDateBetween(Long accountId, LocalDateTime startDate, LocalDateTime endDate);
 }
