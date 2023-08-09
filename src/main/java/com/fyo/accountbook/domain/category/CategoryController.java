@@ -1,7 +1,5 @@
 package com.fyo.accountbook.domain.category;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fyo.accountbook.domain.category.request.CategoryRequest;
-import com.fyo.accountbook.domain.category.response.CategoryInfo;
 import com.fyo.accountbook.global.response.BaseResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -35,8 +32,8 @@ public class CategoryController {
 	 * @return 카테고리 목록
 	 */
 	@GetMapping("/accounts/{accountId}/categories")
-	public List<CategoryInfo> getCategories(@PathVariable Long accountId) {
-		return categoryService.getCategories(accountId);
+	public BaseResponse getCategories(@PathVariable Long accountId) {
+		return BaseResponse.ok(categoryService.getCategories(accountId));
 	}
 	
 	/**
@@ -48,7 +45,7 @@ public class CategoryController {
 	 */
 	@DeleteMapping("/accounts/{accountId}/categories/{categoryId}")
 	public BaseResponse deleteCategory(@PathVariable Long accountId, @PathVariable Long categoryId) {
-		return categoryService.deleteCategory(accountId, categoryId);
+		return BaseResponse.ok(categoryService.deleteCategory(accountId, categoryId));
 	}
 	
 	/**
@@ -59,8 +56,8 @@ public class CategoryController {
 	 * @return 생성된 카테고리
 	 */
 	@PostMapping("/accounts/{accountId}/categories")
-	public CategoryInfo createCategory(@PathVariable Long accountId, @Valid @RequestBody CategoryRequest categoryRequest) {
-		return categoryService.createCategory(accountId, categoryRequest);
+	public BaseResponse createCategory(@PathVariable Long accountId, @Valid @RequestBody CategoryRequest categoryRequest) {
+		return BaseResponse.ok(categoryService.createCategory(accountId, categoryRequest));
 	}
 	
 	/**
@@ -72,7 +69,7 @@ public class CategoryController {
 	 * @return 수정된 카테고리
 	 */
 	@PutMapping("/accounts/{accountId}/categories/{categoryId}")
-	public CategoryInfo updateCategory(@PathVariable Long accountId, @PathVariable Long categoryId, @Valid @RequestBody CategoryRequest categoryRequest) {
-		return categoryService.updateCategory(accountId, categoryId, categoryRequest);
+	public BaseResponse updateCategory(@PathVariable Long accountId, @PathVariable Long categoryId, @Valid @RequestBody CategoryRequest categoryRequest) {
+		return BaseResponse.ok(categoryService.updateCategory(accountId, categoryId, categoryRequest));
 	}
 }

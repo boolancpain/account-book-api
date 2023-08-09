@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fyo.accountbook.domain.account.response.AccountInfo;
 import com.fyo.accountbook.global.response.BaseResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -27,8 +26,8 @@ public class AccountController {
 	 * @return 장부 정보
 	 */
 	@GetMapping("/accounts")
-	public AccountInfo getMyAccount() {
-		return accountService.getMyAccount();
+	public BaseResponse getMyAccount() {
+		return BaseResponse.ok(accountService.getMyAccount());
 	}
 	
 	/**
@@ -37,8 +36,8 @@ public class AccountController {
 	 * @return 장부 정보
 	 */
 	@PostMapping("/accounts")
-	public AccountInfo createAccount() {
-		return accountService.createAccount();
+	public BaseResponse createAccount() {
+		return BaseResponse.ok(accountService.createAccount());
 	}
 	
 	/**
@@ -48,6 +47,6 @@ public class AccountController {
 	 */
 	@DeleteMapping("/accounts/{accountId}")
 	public BaseResponse deleteAccount(@PathVariable Long accountId) {
-		return accountService.deleteAccount(accountId);
+		return BaseResponse.ok(accountService.deleteAccount(accountId));
 	}
 }

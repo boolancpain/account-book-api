@@ -2,6 +2,7 @@ package com.fyo.accountbook.global.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fyo.accountbook.global.util.MessageUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,4 +26,17 @@ public class BaseResponse {
 	
 	@JsonInclude(value = Include.NON_NULL)
 	private Object data;
+	
+	/**
+	 * 성공 응답 객체를 반환한다.
+	 * 
+	 * @return BaseResponse
+	 */
+	public static BaseResponse ok(Object data) {
+		return BaseResponse.builder()
+				.code("ok")
+				.message(MessageUtils.getMessage("ok"))
+				.data(data)
+				.build();
+	}
 }

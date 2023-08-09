@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fyo.accountbook.domain.member.request.OAuthRequest;
-import com.fyo.accountbook.domain.member.response.MemberInfo;
-import com.fyo.accountbook.domain.member.response.TokenResponse;
+import com.fyo.accountbook.global.response.BaseResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,23 +26,23 @@ public class MemberController {
 	 * oAuth2 인증 요청
 	 */
 	@PostMapping("/login/oauth2")
-	public TokenResponse oAuth2Login(@Valid @RequestBody OAuthRequest oAuthRequest) {
-		return memberService.oAuth2Login(oAuthRequest);
+	public BaseResponse oAuth2Login(@Valid @RequestBody OAuthRequest oAuthRequest) {
+		return BaseResponse.ok(memberService.oAuth2Login(oAuthRequest));
 	}
 	
 	/**
 	 * 로그인 회원의 정보 조회
 	 */
 	@GetMapping("/me")
-	public MemberInfo getMyInfo() {
-		return memberService.getMyInfo();
+	public BaseResponse getMyInfo() {
+		return BaseResponse.ok(memberService.getMyInfo());
 	}
 	
 	/**
 	 * access token 재발행
 	 */
 	@GetMapping("/reissue")
-	public TokenResponse reissueAccessToken() {
-		return memberService.reissueAccessToken();
+	public BaseResponse reissueAccessToken() {
+		return BaseResponse.ok(memberService.reissueAccessToken());
 	}
 }
