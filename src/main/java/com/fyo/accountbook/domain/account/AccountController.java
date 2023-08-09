@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fyo.accountbook.global.response.BaseResponse;
+import com.fyo.accountbook.global.util.MessageUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -47,6 +48,10 @@ public class AccountController {
 	 */
 	@DeleteMapping("/accounts/{accountId}")
 	public BaseResponse deleteAccount(@PathVariable Long accountId) {
-		return BaseResponse.ok(accountService.deleteAccount(accountId));
+		accountService.deleteAccount(accountId);
+		return BaseResponse.builder()
+				.code("ok")
+				.message(MessageUtils.getMessage("account.delete"))
+				.build();
 	}
 }

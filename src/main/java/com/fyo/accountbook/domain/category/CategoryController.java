@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fyo.accountbook.domain.category.request.CategoryRequest;
 import com.fyo.accountbook.global.response.BaseResponse;
+import com.fyo.accountbook.global.util.MessageUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,7 +46,11 @@ public class CategoryController {
 	 */
 	@DeleteMapping("/accounts/{accountId}/categories/{categoryId}")
 	public BaseResponse deleteCategory(@PathVariable Long accountId, @PathVariable Long categoryId) {
-		return BaseResponse.ok(categoryService.deleteCategory(accountId, categoryId));
+		categoryService.deleteCategory(accountId, categoryId);
+		return BaseResponse.builder()
+				.code("ok")
+				.message(MessageUtils.getMessage("category.delete"))
+				.build();
 	}
 	
 	/**

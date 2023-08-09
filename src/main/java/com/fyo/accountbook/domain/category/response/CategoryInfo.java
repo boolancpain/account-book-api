@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * 카테고리 Info
+ * 카테고리 정보
  * 
  * @author boolancpain
  */
